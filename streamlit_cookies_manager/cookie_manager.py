@@ -42,6 +42,14 @@ class CookieManager(MutableMapping[str, str]):
             if value == spec['value']:
                 del self._queue[name]
 
+    def delete(self, key: str, domain: str = None):
+        if key in self._cookies:
+            self._queue[key] = dict(
+                value=None,
+                path=self._path,
+                domain=domain,
+            )
+
     def __repr__(self):
         if self.ready():
             return f'<CookieManager: {dict(self)!r}>'
@@ -66,7 +74,10 @@ class CookieManager(MutableMapping[str, str]):
 
     def __delitem__(self, key: str) -> None:
         if key in self._cookies:
-            self._queue[key] = dict(value=None, path=self._path)
+            self._queue[key] = dict(
+                value=None,
+                path=self._path
+            )
 
     def _get_cookies(self) -> Mapping[str, str]:
         if self._cookies is None:

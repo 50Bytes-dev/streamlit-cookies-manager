@@ -9,11 +9,13 @@ interface AddCookieSpec {
     value: string
     expires_at: string
     path: string
+    domain: string
 }
 
 interface DeleteCookieSpec {
     value: null
     path: string
+    domain: string
 }
 
 type CookieSpec = AddCookieSpec | DeleteCookieSpec
@@ -39,7 +41,12 @@ function saveCookies(queue: { [k in string]: CookieSpec }) {
     Object.keys(queue).forEach((name) => {
         const spec = queue[name]
         if (spec.value === null)
-            targetDocument.cookie = `${encodeURIComponent(name)}=; max-age=0; path=${encodeURIComponent(spec.path)}`
+            targetDocument.cookie = (
+                `${encodeURIComponent(name)}=;` +
+                ` max-age=0;` +
+                (spec.domain ? ` domain=${encodeURIComponent(spec.domain)};` : ``) +
+                ` path=${encodeURIComponent(spec.path)};`
+            )
         else {
             const date = new Date(spec.expires_at)
             targetDocument.cookie = (
